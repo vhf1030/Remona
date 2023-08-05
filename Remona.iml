@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/settings" />
+      <excludeFolder url="file://$MODULE_DIR$/webserver/app/migrations" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (ProjectTest)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

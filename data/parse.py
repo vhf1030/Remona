@@ -17,6 +17,7 @@ class Parser:
         self.parse_all()
 
     def parse_all(self):
+        self.parsed = []
         for r in self.rawdata:
             print(r['title'])
             self.parsed.append(self.parse_rawdata_item(r))
@@ -35,12 +36,19 @@ class Parser:
         # metadata info
         for info_field in ['store_name', 'store_url', 'loc_1', 'loc_2', 'theme_name']:
             parsed_item['meta_info'][info_field] = parsed_tmp[info_field]
+        rsv_url_fields = ['reserve_url_' + str(i) for i in range(1, 5)]  # 1,2,3,4
+        rsv_url = [parsed_tmp[f] for f in rsv_url_fields if parsed_tmp[f] is not None]
+        rsv_url = sorted(list(set(rsv_url)), key=len, reverse=True)  # 글자수 많은 값 기준
+        # if len(url) != 1:
+        #     print(url)
+        parsed_item['meta_info']['rsv_url'] = rsv_url[0] if rsv_url else ''  # 없는 것도 있음
 
         # score info
         score_prefix = [
             'difficulty', 'satisfy', 'story', 'direction', 'interior', 'problem', 'activity', 'fear'
         ]
         rec, tot = parsed_tmp['total_recommend'], parsed_tmp['total_review']
+        parsed_item['score_info']['total_review'] = tot
         parsed_item['score_info']['recommend_ratio'] = round(rec / tot, 2) if tot else 0
         for sp in score_prefix:
             tot = parsed_tmp['rt_' + sp]
@@ -57,12 +65,6 @@ class Parser:
                 if res_datetime:
                     reserve_time_info.append(res_datetime)
         parsed_item['reserve_info']['datetime'] = sorted(reserve_time_info)
-        url_fields = [f for f in rawdata_item if 'reserve_url' in f]
-        url = [rawdata_item[f] for f in url_fields if rawdata_item[f] is not None]
-        url = list(set(url))
-        if len(url) > 1:
-            print(url)
-        parsed_item['reserve_info']['url'] = url[0] if url else ''
         return parsed_item
 
 

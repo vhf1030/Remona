@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>MetaInfo List</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>지역</th>
+            <th>테마</th>
+            <!-- 여기에 필요한 다른 필드들을 추가하세요 -->
+        </tr>
+        </thead>
+        <tbody>
+        {% for metainfo in metainfos %}
+        <tr>
+            <td>{{ metainfo.loc_2 }}</td>
+            <td>{{ metainfo.theme_name }}</td>
+            <!-- 여기에 필요한 다른 필드들의 값을 추가하세요 -->
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

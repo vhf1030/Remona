@@ -1,5 +1,6 @@
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webserver.config.settings')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webserver.config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 import pymysql
 pymysql.install_as_MySQLdb()
@@ -9,7 +10,7 @@ from django.apps import apps
 # Load the Django settings and applications.
 apps.populate(settings.INSTALLED_APPS)
 
-from webserver.app.models import MetaInfo, ScoreInfo, ReserveInfo
+from app.models import MetaInfo, ScoreInfo, ReserveInfo
 
 MetaInfo.objects.all().delete()
 ScoreInfo.objects.all().delete()

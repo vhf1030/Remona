@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from app import views  #
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('theme_info/', views.metainfo_list, name='metainfo_list'),
+    path('reserve_info/', views.reserve_info, name='reserve_info'),
 ]

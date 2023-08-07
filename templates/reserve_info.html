@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reservation Information</title>
+</head>
+<body>
+<h1>Reservation Information</h1>
+<table border="1">
+    <tr>
+        <th>Theme</th>
+        <th>Check Datetime</th>
+        <th>Reservation Datetime</th>
+        <!-- Add more headers if needed -->
+    </tr>
+    {% for reserve in reserve_info_list %}
+    <tr>
+        <td>{{ reserve.theme }}</td>
+        <td>{{ reserve.check_datetime }}</td>
+        <td>{{ reserve.rsv_datetime }}</td>
+        <!-- Add more fields if needed -->
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

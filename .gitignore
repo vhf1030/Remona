@@ -3,5 +3,5 @@
 settings/
 __pycache__/
 *.pyc
-webserver/app/migrations/
-webserver/config/envs.py
+app/migrations/
+config/envs.py

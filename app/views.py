@@ -4,12 +4,13 @@ from django.shortcuts import render
 from .models import MetaInfo, ScoreInfo, ReserveInfo
 
 
-def metainfo_list(request):
-    metainfos = MetaInfo.objects.all()
-    context = {'metainfos': metainfos}
-    return render(request, 'theme_info.html', context)
+# def metainfo_list(request):
+#     metainfos = MetaInfo.objects.all()
+#     context = {'metainfos': metainfos}
+#     return render(request, 'theme_info.html', context)
 
-def get_meta_filter_dataset(request):
+def metainfo_list(request):
+    loc_2_filter = request.GET.get('loc_2_filter')  # 필터 선택 출력 유지
     loc_2_choices = MetaInfo.objects.values_list('loc_2', flat=True).distinct()
 
     loc_2_value = request.GET.get('loc_2_filter', None)
@@ -19,8 +20,9 @@ def get_meta_filter_dataset(request):
         filtered_data = MetaInfo.objects.all()
 
     context = {
-        'data': filtered_data,
+        'metainfos': filtered_data,
         'loc_2_choices': loc_2_choices,
+        'loc_2_filter': loc_2_filter  # 필터 선택 출력 유지
     }
     return render(request, 'theme_info.html', context)
 

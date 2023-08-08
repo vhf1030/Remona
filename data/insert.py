@@ -47,17 +47,19 @@ def insert_parsed_data(parser_instance):
         ScoreInfo.objects.update_or_create(
             theme=meta_info,
             check_date=check_datetime,
-            defaults={
-                'recommend_ratio': score_info_data['recommend_ratio'],
-                'difficulty_score': score_info_data['difficulty_score'],
-                'satisfy_score': score_info_data['satisfy_score'],
-                'story_score': score_info_data['story_score'],
-                'direction_score': score_info_data['direction_score'],
-                'interior_score': score_info_data['interior_score'],
-                'problem_score': score_info_data['problem_score'],
-                'activity_score': score_info_data['activity_score'],
-                'fear_score': score_info_data['fear_score']
-            }
+            # defaults={
+            #     'total_review': score_info_data['total_review'],
+            #     'recommend_ratio': score_info_data['recommend_ratio'],
+            #     'difficulty_score': score_info_data['difficulty_score'],
+            #     'satisfy_score': score_info_data['satisfy_score'],
+            #     'story_score': score_info_data['story_score'],
+            #     'direction_score': score_info_data['direction_score'],
+            #     'interior_score': score_info_data['interior_score'],
+            #     'problem_score': score_info_data['problem_score'],
+            #     'activity_score': score_info_data['activity_score'],
+            #     'fear_score': score_info_data['fear_score']
+            # }
+            defaults={k: score_info_data[k] for k in score_info_data}
         )
 
         # ReserveInfo model에 데이터 삽입

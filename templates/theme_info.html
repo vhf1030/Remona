@@ -19,15 +19,32 @@
         <tr>
             <th>지역</th>
             <th>테마</th>
+            <th>리뷰 수</th>
+            <th>추천 비율</th>
             <!-- 여기에 필요한 다른 필드들을 추가하세요 -->
+        </tr>
+        <tr>
+            <th>예약 가능 시간</th>
         </tr>
         </thead>
         <tbody>
-        {% for metainfo in metainfos %}
+        {% for theme in theme_list %}
         <tr>
-            <td>{{ metainfo.loc_2 }}</td>
-            <td>{{ metainfo.theme_name }}</td>
+            <td>{{ theme.loc_2 }}</td>
+            <td>{{ theme.theme_name }}</td>
+            <td>{{ theme.latest_score.total_review }}</td>
+            <td>{{ theme.latest_score.recommend_ratio }}</td>
             <!-- 여기에 필요한 다른 필드들의 값을 추가하세요 -->
+        </tr>
+        <tr>
+            <td colspan="4"> <!-- 두 줄에 걸쳐 예약 가능 시간을 표시 -->
+                {% for rsv_info in theme.latest_reserve_info %}
+                    {{ rsv_info.rsv_datetime|date:"m/d H:i" }} &emsp;
+                    {% if forloop.counter|divisibleby:9 %}
+                    <br>
+                    {% endif %}
+                {% endfor %}
+            </td>
         </tr>
         {% endfor %}
         </tbody>

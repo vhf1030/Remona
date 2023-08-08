@@ -23,3 +23,9 @@ with connection.cursor() as cursor:
     cursor.execute("ALTER TABLE app_scoreinfo AUTO_INCREMENT = 1;")
     cursor.execute("ALTER TABLE app_reserveinfo AUTO_INCREMENT = 1;")
 
+
+from datetime import datetime
+# 특정 날짜 삭제
+records_to_delete = ScoreInfo.objects.filter(check_date="2023-08-08")
+# 필터링된 레코드들을 삭제
+records_to_delete.delete()

@@ -2,6 +2,7 @@ import os
 # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webserver.config.settings')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
+from datetime import datetime
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -21,7 +22,9 @@ def insert_parsed_data(parser_instance):
     # # Make check_datetime timezone aware
     # check_datetime = timezone.make_aware(check_datetime)
 
-    for data in parsed_data:
+    for i, data in enumerate(parsed_data):
+        print(datetime.now(), 'insert', i, data['meta_info']['theme_name'])
+
         meta_info_data = data['meta_info']
         score_info_data = data['score_info']
         reserve_info_data = data['reserve_info']

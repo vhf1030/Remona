@@ -38,6 +38,7 @@ def join_theme_info():
         recommend_ratio=Subquery(latest_score_subquery.values('recommend_ratio')[:1]),
         difficulty_score=Subquery(latest_score_subquery.values('difficulty_score')[:1]),
         satisfy_score=Subquery(latest_score_subquery.values('satisfy_score')[:1]),
+        fear_score=Subquery(latest_score_subquery.values('fear_score')[:1]),
         # 여기에 필요한 다른 필드들을 추가하세요
     )
 
@@ -64,7 +65,7 @@ def theme_info(request):
         theme_list = theme_list.filter(satisfy_score__gte=rating_filter)
 
     # 정렬 적용
-    sort_option_list = ['리뷰 수', '추천 비율', '난이도', '평점']
+    sort_option_list = ['평점', '난이도', '리뷰 수', '추천 비율']
     if sort_option:
         if sort_option == '리뷰 수':
             theme_list = theme_list.order_by('-total_review')

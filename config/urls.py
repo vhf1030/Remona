@@ -20,6 +20,6 @@ from app import views  #
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('theme_info/', views.metainfo_list, name='metainfo_list'),
+    path('theme_info/', views.theme_info, name='theme_info'),
     path('reserve_info/', views.reserve_info, name='reserve_info'),
 ]

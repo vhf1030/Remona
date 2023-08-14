@@ -2,25 +2,53 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>MetaInfo List</h2>
+    <h2>테마 정보</h2>
     <form method="get">
-<!--        <select name="loc_2_filter">-->
-        <select name="loc_2_filter" class="form-control-sm">
-            {% for choice in loc_2_choices %}
-            <option value="{{ choice }}" {% if choice == loc_2_filter %}selected{% endif %}>
-                {{ choice }}
-            </option>
-            {% endfor %}
-        </select>
-        <input type="submit" value="필터 적용" class="btn btn-primary mt-2">
+        <!-- 필터 -->
+        <div>
+            지역:
+            <select name="location_filter" class="form-control-sm" style="margin-right: 20px;">
+                {% for choice in location_list %}
+                <option value="{{ choice }}" {% if choice == location_filter %}selected{% endif %}>
+                    {{ choice }}
+                </option>
+                {% endfor %}
+            </select>
+            평점:
+            <select name="rating_filter" class="form-control-sm" style="margin-right: 20px;">
+                {% for choice in rating_choices %}
+                <option value="{{ choice }}" {% if choice == rating_filter %}selected{% endif %}>
+                    {% if choice != "전체" %}
+                    {{ choice }} 점 이상
+                    {% else %}
+                    {{ choice }}
+                    {% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- 정렬 -->
+        <div>
+            <select name="sort_option" class="form-control-sm">
+                {% for choice in sort_option_list %}
+                <option value="{{ choice }}" {% if choice == sort_option %}selected{% endif %}>
+                    {{ choice }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <input type="submit" value="적용" class="btn btn-primary mt-2">
     </form>
+
     <table class="table table-striped">
         <thead>
         <tr>
             <th>지역</th>
             <th>테마</th>
             <th>리뷰 수</th>
-            <th>추천비율</th>
+            <th>추천 비율</th>
             <th>난이도</th>
             <th>평점</th>
         </tr>
@@ -34,10 +62,10 @@
         <tr>
             <td>{{ theme.loc_2 }}</td>
             <td>{{ theme.theme_name }}</td>
-            <td>{{ theme.latest_score.total_review }}</td>
-            <td>{{ theme.latest_score.recommend_ratio }}</td>
-            <td>{{ theme.latest_score.difficulty_score }}</td>
-            <td>{{ theme.latest_score.satisfy_score }}</td>
+            <td>{{ theme.total_review }}</td>
+            <td>{{ theme.recommend_ratio }}</td>
+            <td>{{ theme.difficulty_score }}</td>
+            <td>{{ theme.satisfy_score }}</td>
             <!-- 여기에 필요한 다른 필드들의 값을 추가하세요 -->
         </tr>
         <tr>

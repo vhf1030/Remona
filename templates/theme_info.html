@@ -6,43 +6,70 @@
 
     <form method="get">
 
-        <!-- 필터 -->
+        <!-- 필터 및 정렬 -->
         <div style="margin-bottom: 10px;">
-            지역:
-            <select name="location_filter" class="form-control-sm" style="margin-right: 20px;">
-                {% for choice in location_list %}
-                <option value="{{ choice }}" {% if choice == location_filter %}selected{% endif %}>
-                    {{ choice }}
-                </option>
-                {% endfor %}
-            </select>
-            평점:
-            <select name="rating_filter" class="form-control-sm" style="margin-right: 20px;">
-                {% for choice in rating_choices %}
-                <option value="{{ choice }}" {% if choice == rating_filter %}selected{% endif %}>
-                    {% if choice != "전체" %}
-                    {{ choice }} 점 이상
-                    {% else %}
-                    {{ choice }}
-                    {% endif %}
-                </option>
-                {% endfor %}
-            </select>
+            <!-- 지역 필터 -->
+            <span style="display: inline-block; vertical-align: top;">
+                지역:
+                <select name="location_filter" class="form-control-sm" style="margin-right: 20px;">
+                    {% for choice in location_list %}
+                    <option value="{{ choice }}" {% if choice == location_filter %}selected{% endif %}>
+                        {{ choice }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </span>
+
+            <!-- 평점 필터 -->
+            <span style="display: inline-block; vertical-align: top;">
+                평점:
+                <select name="rating_filter" class="form-control-sm" style="margin-right: 20px;">
+                    {% for choice in rating_choices %}
+                    <option value="{{ choice }}" {% if choice == rating_filter %}selected{% endif %}>
+                        {% if choice != "전체" %}
+                        {{ choice }} 점 이상
+                        {% else %}
+                        {{ choice }}
+                        {% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </span>
+
+            <!-- 정렬 -->
+            <span style="display: inline-block; vertical-align: top;">
+                정렬:
+                <select name="sort_option" class="form-control-sm">
+                    {% for choice in sort_option_list %}
+                    <option value="{{ choice }}" {% if choice == sort_option %}selected{% endif %}>
+                        {{ choice }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </span>
         </div>
 
-        <!-- 정렬 -->
-        <div style="margin-bottom: 10px;">
-            정렬:
-            <select name="sort_option" class="form-control-sm">
-                {% for choice in sort_option_list %}
-                <option value="{{ choice }}" {% if choice == sort_option %}selected{% endif %}>
-                    {{ choice }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
+        <div style="margin-bottom: 50px;">
 
-        <input type="submit" value="적용" class="btn btn-primary mt-2">
+            <!-- 난이도 슬라이더 -->
+            <span style="display: inline-block; vertical-align: top; width: 250px;">
+                <label for="difficulty-slider">난이도:</label>
+                <div id="difficulty-slider" class="mt-2" style="margin-right: 30px;"></div>
+                <input type="hidden" name="difficulty_min" id="difficulty_min">
+                <input type="hidden" name="difficulty_max" id="difficulty_max">
+            </span>
+
+            <!-- 공포도 슬라이더 -->
+            <span style="display: inline-block; vertical-align: top; width: 250px;">
+                <label for="fear-slider">공포도:</label>
+                <div id="fear-slider" class="mt-2" style="margin-right: 30px;"></div>
+                <input type="hidden" name="fear_min" id="fear_min">
+                <input type="hidden" name="fear_max" id="fear_max">
+            </span>
+
+            <!-- 적용 버튼 -->
+            <input type="submit" value="적용" class="btn btn-primary btn-lg mt-2">
+        </div>
     </form>
 
     <table class="table table-striped">
@@ -57,7 +84,7 @@
             <th>추천 비율</th>
         </tr>
         <tr>
-            <th colspan="5">예약 가능 시간</th>
+            <th colspan="6">예약 가능 시간</th>
             <th>예약링크</th>
         </tr>
         </thead>
@@ -66,20 +93,21 @@
         <tr>
             <td>{{ theme.loc_2 }}</td>
             <td>{{ theme.theme_name }}</td>
-            <td>{{ theme.satisfy_score }}</td>
-            <td>{{ theme.difficulty_score }}</td>
-            <td>{{ theme.fear_score }}</td>
-            <td>{{ theme.total_review }}</td>
-            <td>{{ theme.recommend_ratio }}</td>
+            <td> <i class="fas fa-star"></i> {{ theme.satisfy_score }}</td>
+            <td> <i class="fas fa-lock"></i> {{ theme.difficulty_score }}</td>
+            <td> <i class="fas fa-skull"></i> {{ theme.fear_score }}</td>
+            <td> <i class="fas fa-comments"></i> {{ theme.total_review }}</td>
+            <td> <i class="fas fa-thumbs-up"></i> {{ theme.recommend_ratio }}</td>
             <!-- 여기에 필요한 다른 필드들의 값을 추가하세요 -->
         </tr>
         <tr>
-            <td colspan="5">
+            <td colspan="6">
                 {% for rsv_info in theme.latest_reserve_info %}
-                    {{ rsv_info.rsv_datetime|date:"m/d H:i" }} &emsp;
-                    {% if forloop.counter|divisibleby:8 %}
-                    <br>
-                    {% endif %}
+                    {% ifchanged rsv_info.rsv_datetime|date:"Y-m-d" %}
+                        {% if not forloop.first %}<br>{% endif %}
+                        {{ rsv_info.rsv_datetime|date:"Y-m-d" }} ({{ rsv_info.rsv_datetime|date:"D"|slice:":1" }}) &emsp;
+                    {% endifchanged %}
+                    {{ rsv_info.rsv_datetime|date:"H:i" }} &emsp;
                 {% endfor %}
             </td>
             <td style="white-space: nowrap;"><a href="{{ theme.rsv_url }}" target="_blank"> 예약하기 </a></td>
@@ -88,4 +116,69 @@
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    // Difficulty slider setup
+    const difficultySlider = document.getElementById('difficulty-slider');
+    const difficultyMinInput = document.getElementById('difficulty_min');
+    const difficultyMaxInput = document.getElementById('difficulty_max');
+
+    const initialMin = {{ difficulty_min }};  // 초기 최소값 설정
+    const initialMax = {{ difficulty_max }};  // 초기 최대값 설정
+
+    noUiSlider.create(difficultySlider, {
+        start: [initialMin, initialMax],  // 시작 범위를 초기값으로 설정
+        connect: true,
+        step: 0.1,
+        range: {
+            'min': 0,
+            'max': 5
+        },
+        pips: {         // 눈금 설정
+            mode: 'range',
+            density: 20  // 눈금 간격 설정
+        }
+    });
+
+    difficultySlider.noUiSlider.on('update', function (values, handle) {
+        const minValue = parseFloat(values[0]);
+        const maxValue = parseFloat(values[1]);
+
+        difficultyMinInput.value = minValue;
+        difficultyMaxInput.value = maxValue;
+    });
+
+
+    // Fear slider setup
+    const fearSlider = document.getElementById('fear-slider');
+    const fearMinInput = document.getElementById('fear_min');
+    const fearMaxInput = document.getElementById('fear_max');
+
+    const initialFearMin = {{ fear_min }};  // 초기 최소값 설정
+    const initialFearMax = {{ fear_max }};  // 초기 최대값 설정
+
+    noUiSlider.create(fearSlider, {
+        start: [initialFearMin, initialFearMax],  // 시작 범위를 초기값으로 설정
+        connect: true,
+        step: 1,
+        range: {
+            'min': 0,
+            'max': 5
+        },
+        pips: {
+            mode: 'range',
+            density: 20
+        }
+    });
+
+    fearSlider.noUiSlider.on('update', function (values, handle) {
+        const minValue = parseFloat(values[0]);
+        const maxValue = parseFloat(values[1]);
+
+        fearMinInput.value = minValue;
+        fearMaxInput.value = maxValue;
+    });
+</script>
 {% endblock %}

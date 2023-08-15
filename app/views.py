@@ -64,6 +64,14 @@ def theme_info(request):
     if rating_filter != '전체':  # 평점 필터
         theme_list = theme_list.filter(satisfy_score__gte=rating_filter)
 
+    difficulty_min = float(request.GET.get('difficulty_min', 0))
+    difficulty_max = float(request.GET.get('difficulty_max', 5))
+    fear_min = float(request.GET.get('fear_min', 0))
+    fear_max = float(request.GET.get('fear_max', 5))
+
+    theme_list = theme_list.filter(difficulty_score__gte=difficulty_min, difficulty_score__lte=difficulty_max)
+    theme_list = theme_list.filter(fear_score__gte=fear_min, fear_score__lte=fear_max)
+
     # 정렬 적용
     sort_option_list = ['평점', '난이도', '리뷰 수', '추천 비율']
     if sort_option:
@@ -97,6 +105,10 @@ def theme_info(request):
         'rating_filter': rating_filter,  # 평점 선택 출력 유지
         'sort_option_list': sort_option_list,
         'sort_option': sort_option,  # 정렬 선택 출력 유지
+        'difficulty_min': difficulty_min,
+        'difficulty_max': difficulty_max,
+        'fear_min': fear_min,
+        'fear_max': fear_max,
     }
     return render(request, 'theme_info.html', context)
 

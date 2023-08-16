@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webserver.config.settings')
 import sys
 import pymysql
 
 pymysql.install_as_MySQLdb()
+# import django
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+# django.setup()
 
 def main():
     """Run administrative tasks."""

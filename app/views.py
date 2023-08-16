@@ -1,9 +1,10 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef, Q
 from .models import MetaInfo, ScoreInfo, ReserveInfo
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 # def metainfo_list(request):
 #     metainfos = MetaInfo.objects.all()
@@ -23,6 +24,15 @@ def get_latest_theme_score():
     )
 
     return theme_score
+
+
+def get_recent_reserve_time(hours=3):
+    hour_ago = datetime.now() - timedelta(hours=hours)
+    reserve_info_records = ReserveInfo.objects.filter(date_modified__gte=hour_ago)
+    result_dict = defaultdict(list)
+    for record in reserve_info_records:
+        result_dict[record.theme_id].append(record.rsv_datetime)
+    return result_dict
 
 
 def join_theme_info():
@@ -56,21 +66,31 @@ def theme_info(request):
 
     # 필터 적용
     location_list = ['전체'] + list(theme_list.values_list('loc_2', flat=True).distinct())
-    # print(location_list)
-    if location_filter != '전체':  # 지역 필터
-        theme_list = theme_list.filter(loc_2=location_filter)
-
     rating_choices = ["전체", "3.5", "4", "4.5"]
-    if rating_filter != '전체':  # 평점 필터
-        theme_list = theme_list.filter(satisfy_score__gte=rating_filter)
-
     difficulty_min = float(request.GET.get('difficulty_min', 0))
     difficulty_max = float(request.GET.get('difficulty_max', 5))
     fear_min = float(request.GET.get('fear_min', 0))
     fear_max = float(request.GET.get('fear_max', 5))
-
+    time_min = int(request.GET.get('time_min', 10))
+    time_max = int(request.GET.get('time_max', 24))
+    if location_filter != '전체':  # 지역 필터
+        theme_list = theme_list.filter(loc_2=location_filter)
+    if rating_filter != '전체':  # 평점 필터
+        theme_list = theme_list.filter(satisfy_score__gte=rating_filter)
     theme_list = theme_list.filter(difficulty_score__gte=difficulty_min, difficulty_score__lte=difficulty_max)
     theme_list = theme_list.filter(fear_score__gte=fear_min, fear_score__lte=fear_max)
+
+    # todo: 리팩토링 필요
+    # theme_list = theme_list.filter(rsv_datetime__hour__range=(time_min, time_max - 1))
+    # 예약 가능 시간으로 필터링
+    hour_ago = datetime.now() - timedelta(hours=3)
+    if time_min != 10 or time_max != 24:
+        filtered_reserves = ReserveInfo.objects.filter(
+            date_modified__gte=hour_ago,
+            rsv_datetime__hour__range=(time_min, time_max - 1)
+        )
+        filtered_theme_ids = filtered_reserves.values_list('theme_id', flat=True).distinct()
+        theme_list = theme_list.filter(pk__in=filtered_theme_ids)
 
     # 정렬 적용
     sort_option_list = ['평점', '난이도', '리뷰 수', '추천 비율']
@@ -84,19 +104,12 @@ def theme_info(request):
         elif sort_option == '평점':
             theme_list = theme_list.order_by('-satisfy_score')
 
-
-    # 지금으로부터 1시간 이전의 시간을 계산
-    hour_ago = datetime.now() - timedelta(hours=1)
-
-    # 각 theme에 대한 최근 ReserveInfo 데이터를 가져옵니다.
+    # 예약 가능 시간 추가
+    reserve_dict = get_recent_reserve_time()
     for theme in theme_list:
-        # 지금으로부터 1시간 이내에 수정된 ReserveInfo 데이터를 가져오기
-        latest_reserve_info = ReserveInfo.objects.filter(
-            theme=theme.pk,  # 여기에 .pk를 추가하여 특정 테마의 ID를 참조하도록 함
-            date_modified__gte=hour_ago
-        )
-        theme.latest_reserve_info = latest_reserve_info
+        theme.rsv_datetime = reserve_dict.get(theme.pk, [])
 
+    # print(vars(theme_list[0]))
     context = {
         'theme_list': theme_list,
         'location_list': location_list,
@@ -109,13 +122,15 @@ def theme_info(request):
         'difficulty_max': difficulty_max,
         'fear_min': fear_min,
         'fear_max': fear_max,
+        'time_min': time_min,
+        'time_max': time_max,
     }
     return render(request, 'theme_info.html', context)
 
 
-
 def reserve_info(request):
-    reserve_info_list = ReserveInfo.objects.all()
+    hour_ago = datetime.now() - timedelta(hours=3)
+    reserve_info_list = ReserveInfo.objects.filter(date_modified__gte=hour_ago)
     return render(request, 'reserve_info.html', {'reserve_info_list': reserve_info_list})
 
 

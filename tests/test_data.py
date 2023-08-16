@@ -19,5 +19,3 @@ for r in res:
 # insert_parsed_data 함수 실행
 # parser.parsed = parser.parsed[:10]
 insert_parsed_data(parser)
-
-'add slider filter, add icon, apply reserve time line break'

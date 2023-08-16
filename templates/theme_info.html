@@ -53,18 +53,26 @@
 
             <!-- 난이도 슬라이더 -->
             <span style="display: inline-block; vertical-align: top; width: 250px;">
-                <label for="difficulty-slider">난이도:</label>
-                <div id="difficulty-slider" class="mt-2" style="margin-right: 30px;"></div>
+                <label for="difficulty-slider">난이도</label>
+                <div id="difficulty-slider" class="mt-2" style="margin-right: 50px;"></div>
                 <input type="hidden" name="difficulty_min" id="difficulty_min">
                 <input type="hidden" name="difficulty_max" id="difficulty_max">
             </span>
 
             <!-- 공포도 슬라이더 -->
             <span style="display: inline-block; vertical-align: top; width: 250px;">
-                <label for="fear-slider">공포도:</label>
-                <div id="fear-slider" class="mt-2" style="margin-right: 30px;"></div>
+                <label for="fear-slider">공포도</label>
+                <div id="fear-slider" class="mt-2" style="margin-right: 50px;"></div>
                 <input type="hidden" name="fear_min" id="fear_min">
                 <input type="hidden" name="fear_max" id="fear_max">
+            </span>
+
+            <!-- 예약 시간 슬라이더 -->
+            <span style="display: inline-block; vertical-align: top; width: 400px;">
+                <label for="fear-slider">예약 가능 시간</label>
+                <div id="time-slider" class="mt-2" style="margin-right: 50px;"></div>
+                <input type="hidden" name="time_min" id="time_min">
+                <input type="hidden" name="time_max" id="time_max">
             </span>
 
             <!-- 적용 버튼 -->
@@ -102,12 +110,12 @@
         </tr>
         <tr>
             <td colspan="6">
-                {% for rsv_info in theme.latest_reserve_info %}
-                    {% ifchanged rsv_info.rsv_datetime|date:"Y-m-d" %}
+                {% for rsv_info in theme.rsv_datetime %}
+                    {% ifchanged rsv_info|date:"Y-m-d" %}
                         {% if not forloop.first %}<br>{% endif %}
-                        {{ rsv_info.rsv_datetime|date:"Y-m-d" }} ({{ rsv_info.rsv_datetime|date:"D"|slice:":1" }}) &emsp;
+                        {{ rsv_info|date:"Y-m-d" }} ({{ rsv_info|date:"D"|slice:":1" }}) &emsp;
                     {% endifchanged %}
-                    {{ rsv_info.rsv_datetime|date:"H:i" }} &emsp;
+                    {{ rsv_info|date:"H:i" }} &emsp;
                 {% endfor %}
             </td>
             <td style="white-space: nowrap;"><a href="{{ theme.rsv_url }}" target="_blank"> 예약하기 </a></td>
@@ -125,8 +133,8 @@
     const difficultyMinInput = document.getElementById('difficulty_min');
     const difficultyMaxInput = document.getElementById('difficulty_max');
 
-    const initialMin = {{ difficulty_min }};  // 초기 최소값 설정
-    const initialMax = {{ difficulty_max }};  // 초기 최대값 설정
+    const initialMin = {{ difficulty_min|default:"0" }};  // 초기 최소값 설정
+    const initialMax = {{ difficulty_max|default:"5" }};  // 초기 최대값 설정
 
     noUiSlider.create(difficultySlider, {
         start: [initialMin, initialMax],  // 시작 범위를 초기값으로 설정
@@ -156,13 +164,13 @@
     const fearMinInput = document.getElementById('fear_min');
     const fearMaxInput = document.getElementById('fear_max');
 
-    const initialFearMin = {{ fear_min }};  // 초기 최소값 설정
-    const initialFearMax = {{ fear_max }};  // 초기 최대값 설정
+    const initialFearMin = {{ fear_min|default:"0" }};  // 초기 최소값 설정
+    const initialFearMax = {{ fear_max|default:"5" }};  // 초기 최대값 설정
 
     noUiSlider.create(fearSlider, {
         start: [initialFearMin, initialFearMax],  // 시작 범위를 초기값으로 설정
         connect: true,
-        step: 1,
+        step: 0.1,
         range: {
             'min': 0,
             'max': 5
@@ -179,6 +187,38 @@
 
         fearMinInput.value = minValue;
         fearMaxInput.value = maxValue;
+    });
+
+
+    // Time slider setup
+    const timeSlider = document.getElementById('time-slider');
+    const timeMinInput = document.getElementById('time_min');
+    const timeMaxInput = document.getElementById('time_max');
+
+    const initialTimeMin = {{ time_min|default:"10" }};  // 초기 최소값 설정
+    const initialTimeMax = {{ time_max|default:"24" }};  // 초기 최대값 설정
+
+    noUiSlider.create(timeSlider, {
+        start: [initialTimeMin, initialTimeMax],  // 시작 범위를 초기값으로 설정
+        connect: true,
+        step: 1,  // 1시간 단위로 스텝
+        range: {
+            'min': 10,
+            'max': 24
+        },
+        pips: {
+            mode: 'steps',
+            stepped: true,
+            density: 7.14
+        }
+    });
+
+    timeSlider.noUiSlider.on('update', function (values, handle) {
+        const minValue = parseInt(values[0]);
+        const maxValue = parseInt(values[1]);
+
+        timeMinInput.value = minValue;
+        timeMaxInput.value = maxValue;
     });
 </script>
 {% endblock %}

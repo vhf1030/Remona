@@ -25,8 +25,10 @@ class ScoreInfo(models.Model):
     problem_score = models.FloatField()
     activity_score = models.FloatField()
     fear_score = models.FloatField()
+    prev_1d_reservation_rate = models.FloatField(default=0.0, help_text="하루 전 예약률")
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
 
 class ReserveInfo(models.Model):
     theme = models.ForeignKey(MetaInfo, on_delete=models.CASCADE)

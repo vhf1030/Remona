@@ -27,7 +27,8 @@ class Parser:
         parsed_item = {
             'meta_info': {},
             'score_info': {},
-            'reserve_info': {}
+            'reserve_info': {},
+            'popular': True
         }
 
         # 필드명 변경
@@ -65,6 +66,11 @@ class Parser:
                 if res_datetime:
                     reserve_time_info.append(res_datetime)
         parsed_item['reserve_info']['datetime'] = sorted(reserve_time_info)
+
+        # popular check
+        if parsed_item['score_info']['recommend_ratio'] < 0.5 and parsed_item['score_info']['satisfy_score'] < 3.3:
+            parsed_item['popular'] = False
+
         return parsed_item
 
 

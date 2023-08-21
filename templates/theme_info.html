@@ -92,7 +92,8 @@
             <th>추천 비율</th>
         </tr>
         <tr>
-            <th colspan="6">예약 가능 시간</th>
+            <th colspan="5">예약 가능 시간</th>
+            <th>예약률</th>
             <th>예약링크</th>
         </tr>
         </thead>
@@ -109,7 +110,7 @@
             <!-- 여기에 필요한 다른 필드들의 값을 추가하세요 -->
         </tr>
         <tr>
-            <td colspan="6">
+            <td colspan="5">
                 {% for rsv_info in theme.rsv_datetime %}
                     {% ifchanged rsv_info|date:"Y-m-d" %}
                         {% if not forloop.first %}<br>{% endif %}
@@ -118,7 +119,14 @@
                     {{ rsv_info|date:"H:i" }} &emsp;
                 {% endfor %}
             </td>
-            <td style="white-space: nowrap;"><a href="{{ theme.rsv_url }}" target="_blank"> 예약하기 </a></td>
+            <td>{{ theme.prev_1d_reservation_rate }}</td>
+            <td style="white-space: nowrap;">
+                {% if theme.rsv_url %}
+                <a href="{{ theme.rsv_url }}" target="_blank"> 예약하기 </a>
+                {% else %}
+                <a href="{{ theme.store_url }}" target="_blank"> 예약하기 </a>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
         </tbody>

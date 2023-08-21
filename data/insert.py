@@ -13,6 +13,7 @@ from django.apps import apps
 apps.populate(settings.INSTALLED_APPS)
 
 from app.models import MetaInfo, ScoreInfo, ReserveInfo
+from data.statistics import check_reservation_rate
 
 
 def insert_parsed_data(parser_instance):
@@ -23,6 +24,10 @@ def insert_parsed_data(parser_instance):
     # check_datetime = timezone.make_aware(check_datetime)
 
     for i, data in enumerate(parsed_data):
+        if data['popular'] is False:
+            print(datetime.now(), 'skip  ', i, data['meta_info']['theme_name'])
+            continue
+
         print(datetime.now(), 'insert', i, data['meta_info']['theme_name'])
 
         meta_info_data = data['meta_info']
@@ -47,6 +52,9 @@ def insert_parsed_data(parser_instance):
         )
 
         # ScoreInfo model에 데이터 삽입
+        # 예약률 계산
+        score_info_data['prev_1d_reservation_rate'] = check_reservation_rate(meta_info)
+
         ScoreInfo.objects.update_or_create(
             theme=meta_info,
             check_date=check_datetime,
@@ -66,6 +74,7 @@ def insert_parsed_data(parser_instance):
         )
 
         # ReserveInfo model에 데이터 삽입
+        print('reserve cnt:', len(reserve_info_data['datetime']), score_info_data['prev_1d_reservation_rate'])
         for res_datetime in reserve_info_data['datetime']:
             ReserveInfo.objects.update_or_create(
                 theme=meta_info,

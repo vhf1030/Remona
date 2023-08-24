@@ -25,10 +25,10 @@ def insert_parsed_data(parser_instance):
 
     for i, data in enumerate(parsed_data):
         if data['popular'] is False:
-            print(datetime.now(), 'skip  ', i, data['meta_info']['theme_name'])
+            print(datetime.now(), 'skip metainfo  ', i, data['meta_info']['theme_name'])
             continue
 
-        print(datetime.now(), 'insert', i, data['meta_info']['theme_name'])
+        print(datetime.now(), 'insert metainfo', i, data['meta_info']['theme_name'])
 
         meta_info_data = data['meta_info']
         score_info_data = data['score_info']
@@ -75,6 +75,10 @@ def insert_parsed_data(parser_instance):
 
         # ReserveInfo model에 데이터 삽입
         print('reserve cnt:', len(reserve_info_data['datetime']), score_info_data['prev_1d_reservation_rate'])
+        if score_info_data['prev_1d_reservation_rate'] < 0.2:
+            print(datetime.now(), 'skip resvinfo  ', i, data['meta_info']['theme_name'])  # 예약률 낮은 경우 예약정보 적재 스킵
+            continue
+
         for res_datetime in reserve_info_data['datetime']:
             ReserveInfo.objects.update_or_create(
                 theme=meta_info,

@@ -102,13 +102,16 @@ def theme_info(request):
     # if reserve_days:
     #     filtered_reserves = filtered_reserves.filter(rsv_datetime__week_day__in=reserve_days)
 
-    filtered_reserves = ReserveInfo.objects.filter(
-        date_modified__gte=hour_ago,
-        rsv_datetime__week_day__in=reserve_days,
-        rsv_datetime__hour__range=(time_min, time_max - 1)
-    )
-    filtered_theme_ids = filtered_reserves.values_list('theme_id', flat=True).distinct()
-    theme_list = theme_list.filter(pk__in=filtered_theme_ids)
+    if time_min == 10 and time_max == 24 and len(reserve_days) == 7:
+        pass  # 예약 필터 미적용
+    else:
+        filtered_reserves = ReserveInfo.objects.filter(
+            date_modified__gte=hour_ago,
+            rsv_datetime__week_day__in=reserve_days,
+            rsv_datetime__hour__range=(time_min, time_max - 1)
+        )
+        filtered_theme_ids = filtered_reserves.values_list('theme_id', flat=True).distinct()
+        theme_list = theme_list.filter(pk__in=filtered_theme_ids)
 
     # 정렬 적용
     sort_option_list = ['평점', '난이도', '리뷰수', '추천비율', '예약률']

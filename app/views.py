@@ -59,6 +59,8 @@ def join_theme_info():
 def theme_info(request):
     location_filter = request.GET.get('location_filter')  # 지역 필터 출력 유지
     rating_filter = request.GET.get('rating_filter')  # 평점 필터 출력 유지
+    if not rating_filter:
+        rating_filter = '전체'
     sort_option = request.GET.get('sort_option')  # 정렬 옵션
 
     # join_theme_info()로 최신 ScoreInfo 데이터가 결합된 MetaInfo 객체를 가져옴
@@ -68,10 +70,14 @@ def theme_info(request):
     # 필터 적용
     location_list = ['전체'] + list(theme_list.values_list('loc_2', flat=True).distinct())
     rating_choices = ["전체", "3.5", "4", "4.5"]
+
     difficulty_min = float(request.GET.get('difficulty_min', 0))
     difficulty_max = float(request.GET.get('difficulty_max', 5))
     fear_min = float(request.GET.get('fear_min', 0))
     fear_max = float(request.GET.get('fear_max', 5))
+    reserve_days = request.GET.getlist('days')  # 예약 요일
+    if not reserve_days:
+        reserve_days = ['1', '2', '3', '4', '5', '6', '7']
     time_min = int(request.GET.get('time_min', 10))
     time_max = int(request.GET.get('time_max', 24))
     if location_filter != '전체':  # 지역 필터
@@ -85,20 +91,31 @@ def theme_info(request):
     # theme_list = theme_list.filter(rsv_datetime__hour__range=(time_min, time_max - 1))
     # 예약 가능 시간으로 필터링
     hour_ago = datetime.now() - timedelta(hours=3)
-    if time_min != 10 or time_max != 24:
-        filtered_reserves = ReserveInfo.objects.filter(
-            date_modified__gte=hour_ago,
-            rsv_datetime__hour__range=(time_min, time_max - 1)
-        )
-        filtered_theme_ids = filtered_reserves.values_list('theme_id', flat=True).distinct()
-        theme_list = theme_list.filter(pk__in=filtered_theme_ids)
+    # if time_min != 10 or time_max != 24:
+    #     filtered_reserves = ReserveInfo.objects.filter(
+    #         date_modified__gte=hour_ago,
+    #         rsv_datetime__hour__range=(time_min, time_max - 1)
+    #     )
+    # else:
+    #     filtered_reserves = ReserveInfo.objects.filter(date_modified__gte=hour_ago)
+    #
+    # if reserve_days:
+    #     filtered_reserves = filtered_reserves.filter(rsv_datetime__week_day__in=reserve_days)
+
+    filtered_reserves = ReserveInfo.objects.filter(
+        date_modified__gte=hour_ago,
+        rsv_datetime__week_day__in=reserve_days,
+        rsv_datetime__hour__range=(time_min, time_max - 1)
+    )
+    filtered_theme_ids = filtered_reserves.values_list('theme_id', flat=True).distinct()
+    theme_list = theme_list.filter(pk__in=filtered_theme_ids)
 
     # 정렬 적용
-    sort_option_list = ['평점', '난이도', '리뷰 수', '추천 비율', '예약률']
+    sort_option_list = ['평점', '난이도', '리뷰수', '추천비율', '예약률']
     if sort_option:
-        if sort_option == '리뷰 수':
+        if sort_option == '리뷰수':
             theme_list = theme_list.order_by('-total_review')
-        elif sort_option == '추천 비율':
+        elif sort_option == '추천비율':
             theme_list = theme_list.order_by('-recommend_ratio')
         elif sort_option == '난이도':
             theme_list = theme_list.order_by('-difficulty_score')
@@ -125,6 +142,7 @@ def theme_info(request):
         'difficulty_max': difficulty_max,
         'fear_min': fear_min,
         'fear_max': fear_max,
+        'reserve_days': reserve_days,
         'time_min': time_min,
         'time_max': time_max,
     }

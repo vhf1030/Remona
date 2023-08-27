@@ -53,7 +53,7 @@ def insert_parsed_data(parser_instance):
 
         # ScoreInfo model에 데이터 삽입
         # 예약률 계산
-        score_info_data['prev_1d_reservation_rate'] = check_reservation_rate(meta_info)
+        score_info_data['prev_1d_reservation_rate'] = check_reservation_rate(meta_info)  # reserve info table 참조
 
         ScoreInfo.objects.update_or_create(
             theme=meta_info,
@@ -75,8 +75,8 @@ def insert_parsed_data(parser_instance):
 
         # ReserveInfo model에 데이터 삽입
         print('reserve cnt:', len(reserve_info_data['datetime']), score_info_data['prev_1d_reservation_rate'])
-        if score_info_data['prev_1d_reservation_rate'] < 0.2:
-            print(datetime.now(), 'skip resvinfo  ', i, data['meta_info']['theme_name'])  # 예약률 낮은 경우 예약정보 적재 스킵
+        if score_info_data['prev_1d_reservation_rate'] < 0.2:  # 예약률 낮은 경우 예약정보 적재 스킵
+            print(datetime.now(), 'skip resvinfo  ', i, data['meta_info']['theme_name'])
             continue
 
         for res_datetime in reserve_info_data['datetime']:

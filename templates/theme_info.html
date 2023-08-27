@@ -4,95 +4,123 @@
 <div class="container mt-4">
     <h2>테마 정보</h2>
 
-    <form method="get">
+    <form id="filterForm" method="get" style="display: flex; justify-content: space-between;">
+        <!-- 메타 정보 필터 -->
+        <div style="width: 48%;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <!-- 지역 필터 -->
+                <span style="display: inline-block; vertical-align: top;">
+                    지역:
+                    <select name="location_filter" class="form-control-sm" style="margin-right: 20px;">
+                        {% for choice in location_list %}
+                        <option value="{{ choice }}" {% if choice == location_filter %}selected{% endif %}>
+                            {{ choice }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </span>
 
-        <!-- 필터 및 정렬 -->
-        <div style="margin-bottom: 10px;">
-            <!-- 지역 필터 -->
-            <span style="display: inline-block; vertical-align: top;">
-                지역:
-                <select name="location_filter" class="form-control-sm" style="margin-right: 20px;">
-                    {% for choice in location_list %}
-                    <option value="{{ choice }}" {% if choice == location_filter %}selected{% endif %}>
-                        {{ choice }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </span>
+                <!-- 평점 필터 -->
+                <span style="display: inline-block; vertical-align: top;">
+                    평점:
+                    <select name="rating_filter" class="form-control-sm" style="margin-right: 20px;">
+                        {% for choice in rating_choices %}
+                        <option value="{{ choice }}" {% if choice == rating_filter %}selected{% endif %}>
+                            {% if choice != "전체" %}
+                            {{ choice }} 점 이상
+                            {% else %}
+                            {{ choice }}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </span>
 
-            <!-- 평점 필터 -->
-            <span style="display: inline-block; vertical-align: top;">
-                평점:
-                <select name="rating_filter" class="form-control-sm" style="margin-right: 20px;">
-                    {% for choice in rating_choices %}
-                    <option value="{{ choice }}" {% if choice == rating_filter %}selected{% endif %}>
-                        {% if choice != "전체" %}
-                        {{ choice }} 점 이상
-                        {% else %}
-                        {{ choice }}
-                        {% endif %}
-                    </option>
-                    {% endfor %}
-                </select>
-            </span>
+                <!-- 정렬 -->
+                <span style="display: inline-block; vertical-align: top;">
+                    정렬:
+                    <select name="sort_option" class="form-control-sm">
+                        {% for choice in sort_option_list %}
+                        <option value="{{ choice }}" {% if choice == sort_option %}selected{% endif %}>
+                            {{ choice }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </span>
 
-            <!-- 정렬 -->
-            <span style="display: inline-block; vertical-align: top;">
-                정렬:
-                <select name="sort_option" class="form-control-sm">
-                    {% for choice in sort_option_list %}
-                    <option value="{{ choice }}" {% if choice == sort_option %}selected{% endif %}>
-                        {{ choice }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </span>
-        </div>
 
-        <div style="margin-bottom: 50px;">
-
-            <!-- 난이도 슬라이더 -->
-            <span style="display: inline-block; vertical-align: top; width: 250px;">
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 50px;">
+                <!-- 난이도 슬라이더 -->
+                <span style="display: inline-block; vertical-align: top; width: 250px;">
                 <label for="difficulty-slider">난이도</label>
                 <div id="difficulty-slider" class="mt-2" style="margin-right: 50px;"></div>
                 <input type="hidden" name="difficulty_min" id="difficulty_min">
                 <input type="hidden" name="difficulty_max" id="difficulty_max">
             </span>
 
-            <!-- 공포도 슬라이더 -->
-            <span style="display: inline-block; vertical-align: top; width: 250px;">
+                <!-- 공포도 슬라이더 -->
+                <span style="display: inline-block; vertical-align: top; width: 250px;">
                 <label for="fear-slider">공포도</label>
                 <div id="fear-slider" class="mt-2" style="margin-right: 50px;"></div>
                 <input type="hidden" name="fear_min" id="fear_min">
                 <input type="hidden" name="fear_max" id="fear_max">
             </span>
+            </div>
 
-            <!-- 예약 시간 슬라이더 -->
-            <span style="display: inline-block; vertical-align: top; width: 400px;">
-                <label for="fear-slider">예약 가능 시간</label>
-                <div id="time-slider" class="mt-2" style="margin-right: 50px;"></div>
-                <input type="hidden" name="time_min" id="time_min">
-                <input type="hidden" name="time_max" id="time_max">
-            </span>
+        </div>
 
-            <!-- 적용 버튼 -->
-            <input type="submit" value="적용" class="btn btn-primary btn-lg mt-2">
+        <!-- 예약 정보 필터 -->
+        <div style="width: 48%;">
+            <label for="time-slider">예약 가능 시간</label>
+            <div style="display: flex; justify-content: margin-bottom: 10px;">
+                <!-- 예약 요일 체크박스 -->
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="2" {% if '2' in reserve_days %}checked{% endif %}> 월</label>
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="3" {% if '3' in reserve_days %}checked{% endif %}> 화</label>
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="4" {% if '4' in reserve_days %}checked{% endif %}> 수</label>
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="5" {% if '5' in reserve_days %}checked{% endif %}> 목</label>
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="6" {% if '6' in reserve_days %}checked{% endif %}> 금</label>
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="7" {% if '7' in reserve_days %}checked{% endif %}> 토</label>
+                <label style="margin-right: 10px;"><input type="checkbox" name="days" value="1" {% if '1' in reserve_days %}checked{% endif %}> 일</label>
+            </div>
+            <div style="margin-bottom: 50px;">
+                <!-- 예약 시간 슬라이더 -->
+                <span style="display: inline-block; vertical-align: top; width: 400px;">
+                    <div id="time-slider" class="mt-2" style="margin-right: 50px;"></div>
+                    <input type="hidden" name="time_min" id="time_min">
+                    <input type="hidden" name="time_max" id="time_max">
+                </span>
+
+            </div>
         </div>
     </form>
+    <!-- 적용 버튼 -->
+    <button class="btn btn-primary btn-lg mt-2" style="width: 100%; margin-bottom: 20px;" onclick="submitForm();">적용</button>
 
     <table class="table table-striped">
+        <colgroup>
+            <col style="width:150px">
+            <col style="width:600px">
+            <col style="width:600px">
+            <col style="width:150px">
+            <col style="width:150px">
+            <col style="width:150px">
+            <col style="width:150px">
+            <col style="width:150px">
+        </colgroup>
         <thead>
         <tr>
             <th>지역</th>
-            <th>테마</th>
+            <th>매장명</th>
+            <th>테마명</th>
             <th>평점</th>
             <th>난이도</th>
             <th>공포도</th>
-            <th>리뷰 수</th>
+            <th>리뷰수</th>
             <th>추천 비율</th>
         </tr>
         <tr>
-            <th colspan="5">예약 가능 시간</th>
+            <th colspan="6">예약 가능 시간</th>
             <th>예약률</th>
             <th>예약링크</th>
         </tr>
@@ -101,6 +129,7 @@
         {% for theme in theme_list %}
         <tr>
             <td>{{ theme.loc_2 }}</td>
+            <td>{{ theme.store_name }}</td>
             <td>{{ theme.theme_name }}</td>
             <td> <i class="fas fa-star"></i> {{ theme.satisfy_score }}</td>
             <td> <i class="fas fa-lock"></i> {{ theme.difficulty_score }}</td>
@@ -110,7 +139,7 @@
             <!-- 여기에 필요한 다른 필드들의 값을 추가하세요 -->
         </tr>
         <tr>
-            <td colspan="5">
+            <td colspan="6">
                 {% for rsv_info in theme.rsv_datetime %}
                     {% ifchanged rsv_info|date:"Y-m-d" %}
                         {% if not forloop.first %}<br>{% endif %}
@@ -136,6 +165,11 @@
 
 {% block script %}
 <script>
+    // Form submit
+    function submitForm() {
+        document.getElementById("filterForm").submit();
+    }
+
     // Difficulty slider setup
     const difficultySlider = document.getElementById('difficulty-slider');
     const difficultyMinInput = document.getElementById('difficulty_min');

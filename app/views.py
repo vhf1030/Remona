@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.db.models import Subquery, OuterRef, Q
+from django.db.models import Subquery, OuterRef
 from .models import MetaInfo, ScoreInfo, ReserveInfo
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -13,12 +13,12 @@ from collections import defaultdict
 
 
 def get_latest_theme_score():
-    # 각 테마별로 최신 check_date를 얻는다.
+    # 각 테마별 최신 check_date 확인
     latest_score_dates = ScoreInfo.objects.filter(
         theme=OuterRef('theme')
     ).order_by('-check_date').values('check_date')[:1]
 
-    # 위에서 얻은 날짜를 이용하여 최신 ScoreInfo 객체를 얻습니다.
+    # 최신 ScoreInfo 객체
     theme_score = ScoreInfo.objects.filter(
         check_date=Subquery(latest_score_dates)
     )
@@ -26,7 +26,7 @@ def get_latest_theme_score():
     return theme_score
 
 
-def get_recent_reserve_time(hours=3):
+def get_recent_reserve_time(hours=3):  # todo: 기능 변경 필요
     hour_ago = datetime.now() - timedelta(hours=hours)
     reserve_info_records = ReserveInfo.objects.filter(date_modified__gte=hour_ago)
     result_dict = defaultdict(list)
@@ -36,7 +36,7 @@ def get_recent_reserve_time(hours=3):
 
 
 def join_theme_info():
-    # ScoreInfo에서 각 테마별로 최신 데이터를 얻어옵니다.
+    # ScoreInfo 테마별 최신 데이터
     theme_score = get_latest_theme_score()
 
     # Subquery 준비
@@ -80,6 +80,7 @@ def theme_info(request):
         reserve_days = ['1', '2', '3', '4', '5', '6', '7']
     time_min = int(request.GET.get('time_min', 10))
     time_max = int(request.GET.get('time_max', 24))
+
     if location_filter != '전체':  # 지역 필터
         theme_list = theme_list.filter(loc_2=location_filter)
     if rating_filter != '전체':  # 평점 필터
@@ -127,7 +128,7 @@ def theme_info(request):
         elif sort_option == '예약률':
             theme_list = theme_list.order_by('-prev_1d_reservation_rate')
 
-    # 예약 가능 시간 추가
+    # 예약 가능 시간 추가  # todo: 필터링 적용된 예약 가능 시간만 출력하는 방안
     reserve_dict = get_recent_reserve_time()
     for theme in theme_list:
         theme.rsv_datetime = reserve_dict.get(theme.pk, [])

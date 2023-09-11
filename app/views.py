@@ -115,16 +115,16 @@ def theme_info(request):
     reserve_info = get_latest_reserve_info()
     # hour_ago = datetime.now() - timedelta(hours=3)
 
-    if time_min == 10 and time_max == 24 and len(reserve_days) == 7:
-        pass  # 예약 필터 미적용
-    else:
-        reserve_info = reserve_info.filter(
-            rsv_datetime__week_day__in=reserve_days,
-            rsv_datetime__hour__range=(time_min, time_max - 1)
-        )
-        if available_themes_only:
-            filtered_theme_ids = reserve_info.values_list('theme_id', flat=True).distinct()
-            theme_list = theme_list.filter(pk__in=filtered_theme_ids)
+    # if time_min == 10 and time_max == 25 and len(reserve_days) == 7:
+    #     pass  # 예약 필터 미적용
+    # else:
+    reserve_info = reserve_info.filter(
+        rsv_datetime__week_day__in=reserve_days,
+        rsv_datetime__hour__range=(time_min, time_max - 1)
+    )
+    if available_themes_only:
+        filtered_theme_ids = reserve_info.values_list('theme_id', flat=True).distinct()
+        theme_list = theme_list.filter(pk__in=filtered_theme_ids)
 
     # 예약 가능 시간 추가  # todo: 필터링 적용된 예약 가능 시간만 출력하는 방안
     # reserve_dict = get_recent_reserve_time()
@@ -135,11 +135,11 @@ def theme_info(request):
     context = {
         'theme_list': theme_list,
         'location_list': location_list,
-        'location_filter': location_filter,  # 지역 선택 출력 유지
+        # 'location_filter': location_filter,  # 지역 선택 출력 유지
         'rating_choices': rating_choices,
-        'rating_filter': rating_filter,  # 평점 선택 출력 유지
+        # 'rating_filter': rating_filter,  # 평점 선택 출력 유지
         'sort_option_list': sort_option_list,
-        'sort_option': sort_option,  # 정렬 선택 출력 유지
+        # 'sort_option': sort_option,  # 정렬 선택 출력 유지
         'difficulty_min': difficulty_min,
         'difficulty_max': difficulty_max,
         'fear_min': fear_min,

@@ -13,7 +13,7 @@
                     지역:
                     <select name="location_filter" class="form-control-sm" style="margin-right: 20px;">
                         {% for choice in location_list %}
-                        <option value="{{ choice }}" {% if choice == location_filter %}selected{% endif %}>
+                        <option value="{{ choice }}" {% if choice == request.GET.location_filter %}selected{% endif %}>
                             {{ choice }}
                         </option>
                         {% endfor %}
@@ -25,7 +25,7 @@
                     평점:
                     <select name="rating_filter" class="form-control-sm" style="margin-right: 20px;">
                         {% for choice in rating_choices %}
-                        <option value="{{ choice }}" {% if choice == rating_filter %}selected{% endif %}>
+                        <option value="{{ choice }}" {% if choice == request.GET.rating_filter %}selected{% endif %}>
                             {% if choice != "전체" %}
                             {{ choice }} 점 이상
                             {% else %}
@@ -41,7 +41,7 @@
                     정렬:
                     <select name="sort_option" class="form-control-sm">
                         {% for choice in sort_option_list %}
-                        <option value="{{ choice }}" {% if choice == sort_option %}selected{% endif %}>
+                        <option value="{{ choice }}" {% if choice == request.GET.sort_option %}selected{% endif %}>
                             {{ choice }}
                         </option>
                         {% endfor %}

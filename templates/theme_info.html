@@ -82,6 +82,8 @@
                 <label style="margin-right: 10px;"><input type="checkbox" name="days" value="6" {% if '6' in reserve_days %}checked{% endif %}> 금</label>
                 <label style="margin-right: 10px;"><input type="checkbox" name="days" value="7" {% if '7' in reserve_days %}checked{% endif %}> 토</label>
                 <label style="margin-right: 10px;"><input type="checkbox" name="days" value="1" {% if '1' in reserve_days %}checked{% endif %}> 일</label>
+                <!-- 예약 가능 테마만 보기 체크박스 -->
+                <label style="margin-left: auto;"><input type="checkbox" name="available_themes_only" {% if request.GET.available_themes_only %}checked{% endif %}> 예약 가능 테마만 보기</label>
             </div>
             <div style="margin-bottom: 50px;">
                 <!-- 예약 시간 슬라이더 -->
@@ -90,7 +92,6 @@
                     <input type="hidden" name="time_min" id="time_min">
                     <input type="hidden" name="time_max" id="time_max">
                 </span>
-
             </div>
         </div>
     </form>

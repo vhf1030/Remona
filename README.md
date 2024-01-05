@@ -1,6 +1,6 @@
 # Remona
 ### 개요
-"Remona"는 <span style="color:red">Re</span>servation(예약)  + _Aegypius <span style="color:red">mona</span>chus_(독수리의 학명) 의 합성어입니다.
+"Remona"는 **Re**servation(예약)  + _Aegypius **mona**chus_(독수리의 학명) 의 합성어입니다.
 예약에 필요한 정보를 독수리처럼 빠르고 정확하게 제공하는 서비스를 지향합니다.
 
 이 서비스는 사용자가 필요한 예약정보를 기존 시스템보다 정확하게 얻을 수 있도록 설계되었습니다.

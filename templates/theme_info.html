@@ -2,8 +2,29 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>테마 정보</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>테마 정보</h2>
+        <div class="text-right">
+            {% if data_source == 'realtime' %}
+                <span class="badge badge-success">실시간 데이터</span>
+                <small class="text-muted d-block">API에서 직접 가져온 최신 데이터</small>
+            {% elif data_source == 'database' %}
+                <span class="badge badge-primary">데이터베이스</span>
+                <small class="text-muted d-block">저장된 데이터 사용</small>
+            {% endif %}
+        </div>
+    </div>
 
+    {% if error_message %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>알림:</strong> {{ error_message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+
+    {% if theme_list %}
     <form id="filterForm" method="get" style="display: flex; justify-content: space-between;">
         <!-- 메타 정보 필터 -->
         <div style="width: 48%;">
@@ -98,6 +119,10 @@
     <!-- 적용 버튼 -->
     <button class="btn btn-primary btn-lg mt-2" style="width: 100%; margin-bottom: 20px;" onclick="submitForm();">적용</button>
 
+    <div class="mb-3">
+        <small class="text-muted">총 {{ theme_list|length }}개의 테마가 검색되었습니다.</small>
+    </div>
+
     <table class="table table-striped">
         <colgroup>
             <col style="width:150px">
@@ -152,15 +177,29 @@
             <td>{{ theme.prev_1d_reservation_rate }}</td>
             <td style="white-space: nowrap;">
                 {% if theme.rsv_url %}
-                <a href="{{ theme.rsv_url }}" target="_blank"> 예약하기 </a>
+                <a href="{{ theme.rsv_url }}" target="_blank" class="btn btn-sm btn-outline-primary"> 예약하기 </a>
                 {% else %}
-                <a href="{{ theme.store_url }}" target="_blank"> 예약하기 </a>
+                <a href="{{ theme.store_url }}" target="_blank" class="btn btn-sm btn-outline-secondary"> 매장보기 </a>
                 {% endif %}
             </td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            <h4 class="alert-heading">데이터가 없습니다</h4>
+            <p>현재 표시할 테마 정보가 없습니다.</p>
+            <hr>
+            <p class="mb-0">
+                {% if data_source == 'realtime' %}
+                    API에서 데이터를 가져오는 중이거나 조건에 맞는 테마가 없습니다.
+                {% else %}
+                    데이터베이스에 저장된 테마가 없거나 조건에 맞는 테마가 없습니다.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
 

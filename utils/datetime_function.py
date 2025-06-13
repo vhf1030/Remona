@@ -10,7 +10,8 @@ def get_abs_datetime(date_diff: str, abs_time: str, cur_datetime: datetime = dat
         return False
     cur_date = cur_datetime.date()
     res_date = cur_date + timedelta(days=int(date_diff))
-    if int(abs_time[:2]) >= 24:  # 24시 이후
+    abs_time = "0" + abs_time if len(abs_time) == 4 else abs_time
+    if int(abs_time.split(":")[0]) >= 24:  # 24시 이후
         abs_time = str(int(abs_time[:2]) - 24).zfill(2) + abs_time[2:]
         res_date += timedelta(days=1)
     res_time = time.fromisoformat(abs_time)

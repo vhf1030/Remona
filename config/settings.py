@@ -11,14 +11,37 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-
 import os
-from .envs import MYSQL_DEFAULT, DJANGO_SECRET_KEY
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# BASE_DIR = Path(__file__).resolve().parent.parent.parent
 print('BASE_DIR:', BASE_DIR)
+
+# 데이터베이스 연결 테스트
+DATABASE_AVAILABLE = False
+try:
+    from .envs import MYSQL_DEFAULT, DJANGO_SECRET_KEY
+    # MySQL 연결 테스트
+    import pymysql
+    mysql_config = {
+        'host': MYSQL_DEFAULT['HOST'],
+        'port': int(MYSQL_DEFAULT['PORT']),
+        'user': MYSQL_DEFAULT['USER'],
+        'password': MYSQL_DEFAULT['PASSWORD'],
+        'database': MYSQL_DEFAULT['NAME'],
+    }
+    conn = pymysql.connect(**mysql_config)
+    conn.close()
+    DATABASE_AVAILABLE = True
+    print("✅ MySQL 데이터베이스 연결 가능")
+except Exception as e:
+    print(f"⚠️ MySQL 연결 불가, 실시간 모드로 실행: {e}")
+    DATABASE_AVAILABLE = False
+    # envs 파일이 없거나 연결 실패 시 기본값 사용
+    try:
+        from .envs import DJANGO_SECRET_KEY
+    except:
+        DJANGO_SECRET_KEY = 'django-insecure-fallback-key-for-development-only'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -31,27 +54,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
+# Application definition - 데이터베이스 의존성 완전 제거
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
     "django.contrib.staticfiles",
-    "app"  # run manage.py
-    # "webserver.app"
+    "app"
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -67,8 +79,6 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -76,38 +86,34 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
+# Database configuration - 항상 더미 설정 사용
 DATABASES = {
-    "default": MYSQL_DEFAULT
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
+# 데이터베이스 사용 가능 시에만 인증 관련 설정
+AUTH_PASSWORD_VALIDATORS = []
+if DATABASE_AVAILABLE:
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        },
+    ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -133,3 +139,46 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# 마이그레이션 완전 비활성화
+class DisableMigrations:
+    def __contains__(self, item):
+        return True
+    def __getitem__(self, item):
+        return None
+
+MIGRATION_MODULES = DisableMigrations()
+
+# 로깅 설정
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'app': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
+# 로그 디렉토리 생성
+log_dir = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)

@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 app/migrations/
 config/envs.py
+logs/
